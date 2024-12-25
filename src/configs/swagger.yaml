@@ -1,0 +1,1435 @@
+openapi: 3.0.0
+
+info:
+  title: summer_courses_api
+  description: summer courses api
+  version: 1.0.0
+
+tags:
+  - name: Teachers
+    description: all endpoints of teacher
+
+  - name: Statistics
+    description: all endpoints of statistics
+
+  - name: Admins
+    description: all endpoints of admins
+
+  - name: Attendance
+    description: all endpoints of attendance
+
+  - name: Students
+    description: all endpoints of Students
+
+  - name: Messages
+    description: all endpoints of messages
+
+  - name: Guide
+    description: all endpoints of guide
+
+  - name: Lectures
+    description: all endpoints of lectures
+
+  - name: Regions
+    description: all endpoints of regions
+
+  - name: Governorate
+    description: all endpoints of governorate
+
+servers:
+  - url: http://198.244.227.48:8082
+    description: deployment server
+  - url: http://192.168.15.160:8082/
+    description: development server
+
+
+components:
+  schemas:
+    Admin:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Unique username of the admin.
+          example: admin1
+        password:
+          type: string
+          format: password
+          description: Password for the admin.
+          example: securepassword123
+        full_name:
+          type: string
+          description: Full name of the admin.
+          example: John Doe
+        personal_image:
+          type: string
+          format: binary
+          description: Personal image file uploaded by the admin.
+        permissions:
+          type: array
+          items:
+            type: integer
+          description: List of permissions assigned to the admin.
+          example:
+            - 1
+            - 2
+            - 3
+        tech_admin:
+          type: boolean
+          default: false
+          description: Indicates if the admin has technical permissions.
+      required:
+        - username
+        - password
+        - full_name
+        - personal_image
+        - permissions
+
+    Teacher:
+      type: object
+      properties:
+        region_id:
+          type: string
+          nullable: true
+          description: ID of the region.
+        governorate_id:
+          type: string
+          nullable: true
+          description: ID of the governorate.
+        username:
+          type: string
+          example: teacher1
+          description: Unique username of the teacher.
+        password:
+          type: string
+          format: password
+          example: "123456"
+          description: Password of the teacher (min length 6).
+        state:
+          type: integer
+          default: 0
+          description: "State of the teacher (0 for inactive, 1 for active)."
+        full_name:
+          type: string
+          nullable: true
+          description: Full name of the teacher.
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          description: Birth date of the teacher.
+        phone_number:
+          type: string
+          nullable: true
+          description: Contact phone number.
+        mosque_name:
+          type: string
+          nullable: true
+          description: Name of the mosque associated with the teacher.
+        degree:
+          type: string
+          nullable: true
+          description: Degree obtained by the teacher.
+        work:
+          type: string
+          nullable: true
+          description: Current work or occupation.
+        previous_teacher:
+          type: boolean
+          nullable: true
+          description: Whether the teacher has previous teaching experience.
+        image_1:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the first image.
+        image_2:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the second image.
+        image_3:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the personal image.
+        update:
+          type: boolean
+          nullable: true
+          description: Indicates if the record is updated.
+      required:
+        - username
+        - password
+
+paths:
+  /messages/send:
+    post:
+      summary: send new message
+      deprecated: false
+      description: ""
+      tags: [Messages]
+      parameters:
+        - name: jwt
+          in: cookie
+          description: ""
+          required: false
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiNjZmYThjZDRhM2Y2ZjdmZGQ4NjdjNjY3IiwiaWF0IjoxNzI4OTk2NzgzLCJleHAiOjE3MjkyNTU5ODN9.MNdzwNv1xZpdRCBD1CKf7RSEg67smhQzhtZWZwzTTmw
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              title: message title
+              body: message body
+              sender: message sender
+              governorate_id: 670d53fc6b06494a5d959632
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /messages/get/:
+    get:
+      summary: get all messages
+      deprecated: false
+      description: ""
+      tags: [Messages]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /messages/governorate/670e692b02b342b78ebabeb4:
+    get:
+      summary: get messages for specific governorate by governorate id
+      deprecated: false
+      description: ""
+      tags: [Messages]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /guides/add:
+    post:
+      summary: "add new guide "
+      deprecated: false
+      description: ""
+      tags: [Guide]
+      parameters:
+        - name: jwt
+          in: cookie
+          description: ""
+          required: false
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiNjZmYThjZDRhM2Y2ZjdmZGQ4NjdjNjY3IiwiaWF0IjoxNzI4OTk2NzgzLCJleHAiOjE3MjkyNTU5ODN9.MNdzwNv1xZpdRCBD1CKf7RSEg67smhQzhtZWZwzTTmw
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              title: test guid
+              youtube_url: test youtube url
+              description: test description
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /guides/:
+    get:
+      summary: get all guide vedios
+      deprecated: false
+      description: ""
+      tags: [Guide]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /lectures/add:
+    post:
+      summary: add new lecture
+      deprecated: false
+      description: ""
+      tags: [Lectures]
+      parameters:
+        - name: jwt
+          in: cookie
+          description: ""
+          required: false
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiNjZmYThjZDRhM2Y2ZjdmZGQ4NjdjNjY3IiwiaWF0IjoxNzI4OTk2NzgzLCJleHAiOjE3MjkyNTU5ODN9.MNdzwNv1xZpdRCBD1CKf7RSEg67smhQzhtZWZwzTTmw
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              week_order: 1
+              youtube_url: dfsdsfdsffdssfd
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /lectures/:
+    get:
+      summary: get all lectures
+      deprecated: false
+      description: ""
+      tags: [Lectures]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /auth/teachers/login:
+    post:
+      summary: login new teacher account
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              username: user1
+              password: '123456'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /teachers/register-teacher:
+    post:
+      summary: register data to teacher account
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                teacher_id:
+                  example: 670a9990a8cd200cf7b0e8c7
+                  type: string
+                region_id:
+                  example: test_region_id
+                  type: string
+                governorate_id:
+                  example: test_governorate_id
+                  type: string
+                full_name:
+                  example: full_name
+                  type: string
+                birth_date:
+                  example: 3/10/2002
+                  type: string
+                phone_number:
+                  example: '07814993480'
+                  type: string
+                work:
+                  example: no work
+                  type: string
+                mosque_name:
+                  example: no name
+                  type: string
+                degree:
+                  example: no degree
+                  type: string
+                previous_teacher:
+                  type: boolean
+                  example: 'false'
+                gender:
+                  example: ذكر
+                  type: string
+                image_1:
+                  format: binary
+                  type: string
+                  example: >-
+                    file://C:\Users\MAN
+                    RARE\Downloads\2024-09-07T10-53-15.380Zmain.jpg
+                image_2:
+                  format: binary
+                  type: string
+                  example: >-
+                    file://C:\Users\MAN
+                    RARE\Downloads\A73D9503-B98E-4032-AF75-675D4794DC83.jpg
+                image_3:
+                  format: binary
+                  type: string
+                  example: >-
+                    file://C:\Users\MAN
+                    RARE\Downloads\2024-09-03T15-27-02.601Zmain.jpg
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /teachers/governorate/{governorate_id}:
+    get:
+      summary: get teachers by governorate
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters:
+        - name: governorate_id
+          in: path
+          description: ''
+          required: true
+          example: 672647ebd5aa44f4f071c187
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /teachers/region/{region_id}:
+    get:
+      summary: get teachers by region
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters:
+        - name: region_id
+          in: path
+          description: ''
+          required: true
+          example: 672647ebd5aa44f4f071c19d
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /teachers/report/governorate/{governorate_id}:
+    get:
+      summary: get teachers report by governorate
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters:
+        - name: governorate_id
+          in: path
+          description: ''
+          required: true
+          example: 672647ebd5aa44f4f071c187
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /teachers/report/region/{governorate_id}/{region_id}:
+    get:
+      summary: get teachers report by region
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters:
+        - name: governorate_id
+          in: path
+          description: ''
+          required: true
+          example: 672647ebd5aa44f4f071c187
+          schema:
+            type: string
+        - name: region_id
+          in: path
+          description: ''
+          required: true
+          example: 672647ebd5aa44f4f071c19d
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /attendance/teacher/{teacher_id}:
+    get:
+      summary: get attendance for specific teacher
+      deprecated: false
+      description: ''
+      tags: [Teachers]
+      parameters:
+        - name: teacher_id
+          in: path
+          description: ''
+          required: true
+          example: 670a9990a8cd200cf7b0e8c7
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    teacher_id:
+                      type: string
+                    register_location:
+                      type: object
+                      properties:
+                        longitude:
+                          type: integer
+                        latitude:
+                          type: integer
+                      required:
+                        - longitude
+                        - latitude
+                    register_date:
+                      type: string
+                    students_number:
+                      type: integer
+                    image:
+                      type: string
+                    message:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    __v:
+                      type: integer
+              examples:
+                '1':
+                  summary: Success
+                  value:
+                    - _id: 670d57ec59a578a6f468d362
+                      teacher_id: 670a9990a8cd200cf7b0e8c7
+                      register_location:
+                        longitude: 2332
+                        latitude: 34434
+                      register_date: '2024-10-11T00:01:00.000Z'
+                      students_number: 35
+                      image: >-
+                        \attendance_images\2024-10-14T17-42-04.583Z2024-05-26T16-14-11.084Zphoto_2024-05-26_19-13-54.jpg
+                      message: sdsddssd
+                      createdAt: '2024-10-14T17:42:04.608Z'
+                      updatedAt: '2024-10-14T17:42:04.608Z'
+                      __v: 0
+          headers: {}
+      security: []
+  /attendance/send-attendance:
+    post:
+      summary: "send new attendance "
+      deprecated: false
+      description: ""
+      tags: [Attendance]
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                teacher_id:
+                  example: 670a9990a8cd200cf7b0e8c7
+                  type: string
+                students_number:
+                  example: 35
+                  type: number
+                image:
+                  example: >-
+                    file://C:\Users\MAN
+                    RARE\Downloads\2024-05-26T16-14-11.084Zphoto_2024-05-26_19-13-54.jpg
+                  type: string
+                  format: binary
+                message:
+                  example: sdsddssd
+                  type: string
+                register_location:
+                  example: '{"longitude":2332,"latitude":34434}'
+                  type: string
+                register_date:
+                  example: "2024-10-11"
+                  type: string
+              required:
+                - teacher_id
+                - students_number
+                - image
+                - message
+                - register_location
+                - register_date
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teacher_id:
+                    type: string
+                  register_location:
+                    type: object
+                    properties:
+                      longitude:
+                        type: integer
+                      latitude:
+                        type: integer
+                    required:
+                      - longitude
+                      - latitude
+                  register_date:
+                    type: string
+                  students_number:
+                    type: integer
+                  image:
+                    type: string
+                  message:
+                    type: string
+                  _id:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  __v:
+                    type: integer
+                required:
+                  - teacher_id
+                  - register_location
+                  - register_date
+                  - students_number
+                  - image
+                  - message
+                  - _id
+                  - createdAt
+                  - updatedAt
+                  - __v
+              examples:
+                "1":
+                  summary: Success
+                  value:
+                    teacher_id: 670a9990a8cd200cf7b0e8c7
+                    register_location:
+                      longitude: 2332
+                      latitude: 34434
+                    register_date: "2024-10-11T00:01:00.000Z"
+                    students_number: 35
+                    image: >-
+                      \attendance_images\2024-10-14T17-42-04.583Z2024-05-26T16-14-11.084Zphoto_2024-05-26_19-13-54.jpg
+                    message: sdsddssd
+                    _id: 670d57ec59a578a6f468d362
+                    createdAt: "2024-10-14T17:42:04.608Z"
+                    updatedAt: "2024-10-14T17:42:04.608Z"
+                    __v: 0
+          headers: {}
+      security: []
+  /attendance/governorate:
+    post:
+      summary: get attendance by governorate id
+      deprecated: false
+      description: ''
+      tags: [Attendance]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              governorate_id: 6726242e8f2d046cf0b49c6f
+              date: '2024-11-02T12:47:05.231Z'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /attendance/regions:
+    post:
+      summary: get attendance by region id
+      deprecated: false
+      description: ''
+      tags: [Attendance]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              region_id: 6726242e8f2d046cf0b49c80
+              date: '2024-11-02T12:47:05.231Z'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /attendance/report/region:
+    post:
+      summary: get attendance report for region
+      deprecated: false
+      description: ''
+      tags: [Attendance]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              region_id: 672647ebd5aa44f4f071c19d
+              governorate_id: 672647ebd5aa44f4f071c187
+              date: '2024-11-03'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /attendance/report/governorate:
+    post:
+      summary: get attendance report for governorate
+      deprecated: false
+      description: ''
+      tags: [Attendance]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              governorate_id: 672647ebd5aa44f4f071c187
+              date: '2024-11-03'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /regions/add/:
+    post:
+      summary: add new region
+      deprecated: false
+      description: ''
+      tags: [Regions]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              region_name: المدينة القديمة
+              governorate_id: 670d53fc6b06494a5d959632
+              governorate_code: 30
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /regions/get-for-governorate/{governorate_id}/:
+    get:
+      summary: get all regions for specific governorate
+      deprecated: false
+      description: ''
+      tags: [Regions]
+      parameters:
+        - name: governorate_id
+          in: path
+          description: ''
+          required: true
+          example: 672cc19964e07256213b02b2
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /regions/:
+    get:
+      summary: get all regions
+      deprecated: false
+      description: ''
+      tags: [Regions]
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []  
+  /governorates/add/:
+    post:
+      summary: "add new governorate "
+      deprecated: false
+      description: ""
+      tags: [Governorate]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              governorate_name: النجف الأشرف
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /governorates/get:
+    get:
+      summary: get all  governorates
+      deprecated: false
+      description: ""
+      tags: [Governorate]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /governorates/get-with-regions:
+      get:
+        summary: get all governorates with regions
+        deprecated: false
+        description: ''
+        tags: [Governorate]
+        parameters: []
+        responses:
+          '200':
+            description: ''
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties: {}
+            headers: {}
+        security: []
+  /auth/admins/login:
+    post:
+      summary: login admin account
+      deprecated: false
+      description: ""
+      tags: [Admins]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              username: ali_7saen
+              password: "233984334"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                "1":
+                  summary: Success
+                  value:
+                    _id: 66f818d9f06c8b2167be9d7f
+                    username: ali_7saen
+                    password: 233984334
+                    full_name: ali hussein
+                    personal_image: sdkjkjkj
+                    permissions:
+                      - 1
+                      - 2
+                      - 3
+                    tech_admin: true
+                    createdAt: "2024-09-28T14:55:21.051Z"
+                    updatedAt: "2024-09-28T14:55:21.051Z"
+                    __v: 0
+          headers: {}
+      security: []
+  /students/register:
+    post:
+      summary: Register new student
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required:
+                - 01JAJH33N7MGEZ45TBVDDHVK1T
+            example:
+              name: ali
+              age: 22
+              phone_number: "34094390394"
+              degree: some degree
+              gender: ذكر
+              size: larg
+              teacher_id: 670a9990a8cd200cf7b0e8c7
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /students/edit:
+    post:
+      summary: "edite student data "
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required:
+                - 01JAJH33N7MGEZ45TBVDDHVK1T
+            example:
+              id: 6713bb6c9a600c86b5e2eeb3
+              name: ali hussein
+              age: 22
+              phone_number: "34094390394"
+              degree: some degree
+              size: larg
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /students/delete/670d269c91d5c3c884e36cbf:
+    get:
+      summary: delete student
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /students/to-delete/6713bb6c9a600c86b5e2eeb3:
+    get:
+      summary: send to delete student
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /students/6713bb6c9a600c86b5e2eeb3:
+    get:
+      summary: get student by id
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /students/get-all/670a9990a8cd200cf7b0e8c7:
+    get:
+      summary: get all student by teacher id
+      deprecated: false
+      description: ""
+      tags: [Students]
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /statistics/students:
+    get:
+      summary: "get student statistics "
+      deprecated: false
+      description: ""
+      tags: [Statistics]
+      parameters:
+        - name: jwt
+          in: cookie
+          description: ""
+          required: false
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiNjcxOGYzZjlhOTYyNWU5ZTUyYTQ5NTc3IiwicGVybWlzc2lvbiI6WzMwLDEzLDExLDI3LDE5LDI2LDMxLDE2LDI1LDE4LDE3XSwiZnVsbF9uYW1lIjoiYWxpIGh1c3NlaW4iLCJwZXJzb25hbF9pbWFnZSI6InNka2pramtqIiwidGVjaF9hZG1pbiI6dHJ1ZX0sImlhdCI6MTczMDExNzM4MCwiZXhwIjoxNzMwMzc2NTgwfQ.BdwageDtAWiVQhfhlUF13k60HRz8n4SDTjOEzY9ghXU
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+  /statistics/teachers:
+    get:
+      summary: get student statistics  Copy
+      deprecated: false
+      description: ""
+      tags: [Statistics]
+      parameters:
+        - name: jwt
+          in: cookie
+          description: ""
+          required: false
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiNjcxOGYzZjlhOTYyNWU5ZTUyYTQ5NTc3IiwicGVybWlzc2lvbiI6WzMwLDEzLDExLDI3LDE5LDI2LDMxLDE2LDI1LDE4LDE3XSwiZnVsbF9uYW1lIjoiYWxpIGh1c3NlaW4iLCJwZXJzb25hbF9pbWFnZSI6InNka2pramtqIiwidGVjaF9hZG1pbiI6dHJ1ZX0sImlhdCI6MTczMDExNzM4MCwiZXhwIjoxNzMwMzc2NTgwfQ.BdwageDtAWiVQhfhlUF13k60HRz8n4SDTjOEzY9ghXU
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+
+
+
+
+    post:
+      summary: addAdmin
+      deprecated: false
+      description: ''
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              username: admin6
+              password: '12345'
+              full_name: haiderm
+              personal_image: default.jpg
+              permissions:
+                - 11
+                - 30
+                - 13
+              tech_admin: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  admin:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      password:
+                        type: string
+                      full_name:
+                        type: string
+                      personal_image:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: integer
+                      tech_admin:
+                        type: boolean
+                      _id:
+                        type: string
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+                      __v:
+                        type: integer
+                    required:
+                      - username
+                      - password
+                      - full_name
+                      - personal_image
+                      - permissions
+                      - tech_admin
+                      - _id
+                      - createdAt
+                      - updatedAt
+                      - __v
+                required:
+                  - message
+                  - admin
+          headers: {}
+      security: []
+
+    post:
+      summary: Add a new admin
+      description: This endpoint allows adding a new admin to the system.
+      tags:
+        - Admins
+      parameters:
+        - in: body
+          name: body
+          description: Admin details
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: Admin username
+                example: admin1
+              password:
+                type: string
+                description: Admin password
+                example: "1234"
+              full_name:
+                type: string
+                description: Admin full name
+                example: Admin User
+              personal_image:
+                type: string
+                description: Admin personal image URL
+                example: default.jpg
+              permissions:
+                type: array
+                items:
+                  type: integer
+                description: Admin permissions
+                example: [30, 13]
+              tech_admin:
+                type: boolean
+                description: Whether the admin has technical admin privileges
+                example: true
+      responses:
+        '201':
+          description: Admin created successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: تم إنشاء المسؤول بنجاح
+              admin:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: admin1
+                  password:
+                    type: string
+                    example: hashed_password
+                  full_name:
+                    type: string
+                    example: Admin User
+                  personal_image:
+                    type: string
+                    example: default.jpg
+                  permissions:
+                    type: array
+                    items:
+                      type: integer
+                    example: [30, 13]
+                  tech_admin:
+                    type: boolean
+                    example: true
+                  _id:
+                    type: string
+                    example: "63e1d8f8c1b9b123456789ab"
+                  createdAt:
+                    type: string
+                    example: "2024-12-10T12:00:00.000Z"
+                  updatedAt:
+                    type: string
+                    example: "2024-12-10T12:00:00.000Z"
+                  __v:
+                    type: integer
+                    example: 0
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /admins/add:
+    post:
+      summary: addAdmin
+      deprecated: false
+      description: ''
+      tags: [Admins]
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+            example:
+              username: admin6
+              password: '12345'
+              full_name: haiderm
+              personal_image: default.jpg
+              permissions:
+                - 11
+                - 30
+                - 13
+              tech_admin: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  admin:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      password:
+                        type: string
+                      full_name:
+                        type: string
+                      personal_image:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: integer
+                      tech_admin:
+                        type: boolean
+                      _id:
+                        type: string
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+                      __v:
+                        type: integer
+                    required:
+                      - username
+                      - password
+                      - full_name
+                      - personal_image
+                      - permissions
+                      - tech_admin
+                      - _id
+                      - createdAt
+                      - updatedAt
+                      - __v
+                required:
+                  - message
+                  - admin
+          headers: {}
+      security: []
