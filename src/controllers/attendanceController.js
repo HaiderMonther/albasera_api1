@@ -67,7 +67,7 @@ async function saveNewAttendance_post(req, res) {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 }
-////////////////
+
 async function getAllAttendanceByTeacherId_get(req, res) {
     const teacherId = req.params.id;
 

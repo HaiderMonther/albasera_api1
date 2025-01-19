@@ -10,50 +10,9 @@ const ExcelJS = require('exceljs');
 
 
 async function registerTeacherPost(req, res) {
-    const {
-        teacher_id,
-        region_id,
-        governorate_id,
-        full_name,
-        birth_date,
-        phone_number,
-        work,
-        mosque_name,
-        degree,
-        gender,
-        previous_teacher,
-        image_1,
-        image_2,
-        image_3
-    } = req.body;
-
-
-    // validate login data
-    const result = registerTeacherValidator({
-        teacher_id,
-        region_id,
-        governorate_id,
-        full_name,
-        birth_date,
-        phone_number,
-        work,
-        gender,
-        mosque_name,
-        degree,
-        previous_teacher
-    })
-
-    if (result.valid == false) {
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_1))
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_2))
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_3))
-        return res.status(401).json({ message: result.msg })
-
-    }
-
-
     try {
-        const teacher = await Teachers.findByIdAndUpdate(teacher_id, {
+        const {
+            teacher_id,
             region_id,
             governorate_id,
             full_name,
@@ -62,12 +21,56 @@ async function registerTeacherPost(req, res) {
             work,
             mosque_name,
             degree,
-            state: 1,
+            gender,
+            previous_teacher,
             image_1,
             image_2,
-            image_3,
+            image_3
+        } = req.body;
+
+
+        // validate login data
+        const result = registerTeacherValidator({
+            teacher_id,
+            region_id,
+            governorate_id,
+            full_name,
+            birth_date,
+            phone_number,
+            work,
+            gender,
+            mosque_name,
+            degree,
             previous_teacher
         })
+
+        if (result.valid == false) {
+            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_1))
+            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_2))
+            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_3))
+            return res.status(401).json({ message: result.msg })
+
+        }
+
+
+        const teacher = await Teachers.findByIdAndUpdate(
+            teacher_id,
+            {
+                region_id,
+                governorate_id,
+                full_name,
+                birth_date,
+                phone_number,
+                gender,
+                work,
+                mosque_name,
+                degree,
+                state: 1,
+                image_1,
+                image_2,
+                image_3,
+                previous_teacher
+            })
 
         myEmitter.emit("incrementTeachersForGovernorate", governorate_id)
 
@@ -185,7 +188,7 @@ async function getTeachersReportByGovernorate_get(req, res) {
             { header: 'عدد الطلاب', key: 'students_number', width: 15 },
             { header: 'رقم الهاتف', key: 'phone_number', width: 15 },
             { header: 'الصورة الشخصية', key: 'image_1', width: 20 },
-            { header: 'وجه الهوية', key: 'image_2', width: 20 },     
+            { header: 'وجه الهوية', key: 'image_2', width: 20 },
             { header: 'خلفية الهوية', key: 'image_3', width: 20 }
         ];
 
@@ -451,8 +454,8 @@ const rejectTeacher = async (req, res) => {
         if (teacher.state !== 1) {
             return res.status(400).json({ message: "Teacher is not in pending status" });
         }
-        teacher.state = 3; // تحديث الحالة إلى مرفوض
-        teacher.rejectionReason = reason || "No reason provided"; // تعيين سبب الرفض
+        teacher.state = 3;
+        teacher.rejectionReason = reason || "No reason provided";
         await teacher.save();
 
         res.status(200).json({ message: "Teacher rejected successfully", teacher });
@@ -460,6 +463,63 @@ const rejectTeacher = async (req, res) => {
         res.status(500).json({ message: "Error rejecting teacher", error });
     }
 };
+
+const checkStateForTeacher = async (req, res) => {
+    try {
+        const { id: teacherId } = req.params;
+
+        const teacher = await Teachers.findById(teacherId);
+        if (!teacher) {
+            return res.status(404).json({ message: "Teacher not found" });
+        }
+
+        if (teacher.state == 0) {
+            return res.status(422).json({ message: "Teacher is not in a pending status" });
+        }
+
+        res.status(200).json({ state: teacher.state });
+    } catch (error) {
+        console.error("Error fetching teacher state:", error);
+        res.status(500).json({ message: "An internal server error occurred", error: error.message });
+    }
+};
+
+const resetTeacherState = async (req, res) => {
+    const teacherId = req.params.id;
+
+    try {
+        const teacher = await Teachers.findById(teacherId);
+
+        if (!teacher) {
+            return res.status(404).json({ message: "Teacher not found" });
+        }
+
+        if (teacher.state !== 3) {
+            return res.status(400).json({ message: "Teacher is not in rejected status" });
+        }
+
+        teacher.state = 0;
+
+        teacher.image_1 = null;
+        teacher.image_2 = null;
+        teacher.image_3 = null;
+        teacher.students_number = 0;
+        teacher.mosque_name = null;
+        teacher.degree = null;
+        teacher.work = null;
+        teacher.region_id = null;
+        teacher.governorate_id = null;
+        teacher.gender = null;
+
+        await teacher.save();
+
+        res.status(200).json({ message: "Teacher state reset successfully", teacher });
+    } catch (error) {
+        console.error("Error resetting teacher state:", error);
+        res.status(500).json({ message: "An internal server error occurred", error: error.message });
+    }
+};
+
 
 
 
@@ -471,5 +531,7 @@ module.exports = {
     getTeachersReportByGovernorate_get,
     getPendingTeachers,
     approveTeacher,
-    rejectTeacher
+    rejectTeacher,
+    checkStateForTeacher,
+    resetTeacherState
 }

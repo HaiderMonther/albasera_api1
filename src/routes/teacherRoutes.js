@@ -10,11 +10,14 @@ const {
     getTeachersByRegion_get,
     getPendingTeachers,
     approveTeacher,
-    rejectTeacher
+    rejectTeacher,
+    checkStateForTeacher,
+    resetTeacherState
 } = require("../controllers/teachersController");
 
 // المسارات الحالية
 router.post("/register-teacher", validateAndDeleteFiles, registerTeacherPost);
+router.post('/reset-state/:id', resetTeacherState);
 
 router.get("/governorate/:governorate_id", getTeacherByGovernorate_get);
 router.get("/region/:region_id", getTeachersByRegion_get);
@@ -24,6 +27,8 @@ router.get("/report/region/:governorate_id/:region_id", getTeachersReportByRegio
 
 
 router.get("/pending-teachers/:governorate_id", getPendingTeachers);
+router.get("/checkState/:id", checkStateForTeacher);
+
 
 router.put("/reject-teacher/:id", rejectTeacher);
 

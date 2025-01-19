@@ -93,7 +93,7 @@ myEmitter.on('decrementTeachersForGovernorate', async (governorate_id) => {
 });
 
 // Event listener for updating registered teachers
-myEmitter.on('incrementTeachersForGovernorate', async (governorate_id ) => {
+myEmitter.on('incrementTeachersForGovernorate', async (governorate_id) => {
     await Governorate.findByIdAndUpdate(governorate_id, {
         $inc: { registered_teachers: 1 }
     });

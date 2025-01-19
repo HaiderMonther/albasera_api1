@@ -19,9 +19,9 @@ async function admin_login(req, res) {
 
     try {
         const admin = await adminsModel.findOne({ username: username });
-        
+
         if (admin) {
-            
+
             const isMatch = await bcrypt.compare(password, admin.password);
             if (isMatch) {
                 const adminObj = {
@@ -60,13 +60,12 @@ async function teacher_login(req, res) {
     try {
         const teacher = await teachersModel.findOne({ username: username });
         if (teacher) {
-            const isMatch = await bcrypt.compare(password, teacher.password);
-            if (isMatch) {
+            if (teacher.password == password) {
                 return res.status(200).json({
                     id: teacher._id,
                     state: teacher.state,
                     message: "",
-                    data : teacher
+                    data: teacher
                 })
             }
         }

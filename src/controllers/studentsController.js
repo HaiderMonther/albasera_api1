@@ -2,19 +2,23 @@ const Students = require("../models/studentsModel");
 const { addStudentValidator, editStudentValidator } = require("../utils/validations/studentsValidators");
 const myEmitter = require('../utils/eventEmitter');
 const Teachers = require("../models/teachersModel");
+const Governorate = require("../models/governoratesModel");
 
 async function addStudent_post(req, res) {
     const studentData = req.body;
 
-    // validate login data
-    const result = addStudentValidator(studentData)
+    // Validate student data
+    const result = addStudentValidator(studentData);
 
-    if (result.valid == false) {
-        return res.status(401).json({ message: result.msg })
+    if (!result.valid) {
+        return res.status(401).json({ message: result.msg });
     }
 
     studentData.to_delete = false;
+
     try {
+
+        // Create the student
         const student = await Students.create(studentData);
 
         // get governorate id
@@ -23,7 +27,7 @@ async function addStudent_post(req, res) {
         myEmitter.emit("incrementStudentsForTeachers", studentData.teacher_id)
         return res.status(200).json(student)
     } catch (error) {
-        return res.status(401).json({ message: error.message })
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -88,7 +92,8 @@ async function fetchStudentByStudentId_get(req, res) {
 }
 
 async function fetchStudentsByTeacherId_get(req, res) {
-    const teacherId = req.params.id;
+    const teacherId = req.params.teacher_id;
+    console.log(teacherId);
 
     if (teacherId == "" || !teacherId) {
         return res.status(404).json({ message: 'teacherId did not send' });
@@ -104,7 +109,7 @@ async function fetchStudentsByTeacherId_get(req, res) {
 
 }
 
-async function editStudentByStudentId_post(req, res) {
+async function editStudentByStudentId_put(req, res) {
     const studentId = req.body.id;
     if (studentId == "" || !studentId) {
         return res.status(404).json({ message: 'studentId did not send' });
@@ -115,18 +120,22 @@ async function editStudentByStudentId_post(req, res) {
         age,
         phone_number,
         degree,
-        size
+        size,
+        gender
     } = req.body;
 
-    // validate login data
+    if (!gender) {
+        return res.status(401).json({ message: 'gender must be provided.' });
+    }
+
     const result = editStudentValidator({
         name,
         age,
         phone_number,
         degree,
-        size
+        size,
+        gender
     })
-
 
     if (result.valid == false) {
         return res.status(401).json({ message: result.msg })
@@ -138,7 +147,8 @@ async function editStudentByStudentId_post(req, res) {
             age,
             phone_number,
             degree,
-            size
+            size,
+            gender
         });
 
         return res.status(200).json({})
@@ -190,7 +200,7 @@ module.exports = {
     deleteStudent_get,
     fetchStudentByStudentId_get,
     fetchStudentsByTeacherId_get,
-    editStudentByStudentId_post,
+    editStudentByStudentId_put,
     toDeleteStudent_get,
     deleteStudentByTeacher
 }

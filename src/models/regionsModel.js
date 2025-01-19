@@ -14,7 +14,7 @@ const regionSchema = new Schema({
     governorate_code: {
         type: Number,
         required: true,
-        enum: [30, 13, 11, 27, 19, 26, 31, 16, 25, 18, 17]
+        enum:  [28, 13, 11, 27, 19, 26, 31, 16, 25, 18, 17, 12, 14, 15, 20, 21, 22, 23, 24, 29]
     },
 },
     {

@@ -11,7 +11,7 @@ const governorateSchema = new Schema(
             type: Number,
             required: [true, "Governorate code is required"],
             enum: {
-                values: [30, 13, 11, 27, 19, 26, 31, 16, 25, 18, 17],
+                values:  [28, 13, 11, 27, 19, 26, 31, 16, 25, 18, 17, 12, 14, 15, 20, 21, 22, 23, 24, 29],
                 message: "{VALUE} is not a valid governorate code",
             },
         },

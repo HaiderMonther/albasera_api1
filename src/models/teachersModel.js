@@ -5,13 +5,13 @@ const teachersSchema = new Schema({
     region_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Region',
-        required: true,
+        required: false,
         default: null
     },
     governorate_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Governorate',
-        required: true,
+        required: false,
         default: null
     },
     username: {
@@ -46,7 +46,7 @@ const teachersSchema = new Schema({
     },
     students_number: {
         type: Number,
-        default: null
+        default: 0
     },
     mosque_name: {
         type: String,
