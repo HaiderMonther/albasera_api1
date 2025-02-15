@@ -16,7 +16,8 @@ const studentsSchema = new Schema({
     },
     degree: {
         type: String,
-        required: true
+        required: true,
+        enum: ['اول ابتدائي', 'ثاني ابتدائي', 'ثالث ابتدائي', 'رابع ابتدائي', 'خامس ابتدائي', 'سادس ابتدائي', 'اول متوسط', 'ثاني متوسط', 'ثالث متوسط']
     },
     size: {
         type: String,
@@ -34,8 +35,14 @@ const studentsSchema = new Schema({
     gender: {
         type: String,
         required: true,
-        enum: ['ذكر', 'انثى'] 
-    }
+        enum: ['ذكر', 'انثى']
+    },
+    academic_level: {
+        type: String,
+        required: true,
+        enum: ['أولى', 'ثانية', 'ثالثة']
+    },
+
 }, {
     timestamps: true
 })

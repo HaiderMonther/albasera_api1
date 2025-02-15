@@ -41,7 +41,12 @@ function addStudentValidator(data) {
                 'string.empty': 'Size is required and cannot be empty.',
                 'any.required': 'Size must be provided.',
             }),
-
+        academic_level: Joi.string()
+            .required()
+            .messages({
+                'string.empty': 'academic is required and cannot be empty.',
+                'any.required': 'academic must be provided.',
+            }),
         teacher_id: Joi.string()
             .required()
             .messages({
@@ -100,7 +105,12 @@ function editStudentValidator(data) {
                 'string.empty': 'Degree is required and cannot be empty.',
                 'any.required': 'Degree must be provided.',
             }),
-
+        academic_level: Joi.string()
+            .required()
+            .messages({
+                'string.empty': 'academic is required and cannot be empty.',
+                'any.required': 'academic must be provided.',
+            }),
         size: Joi.string()
             .required()
             .messages({

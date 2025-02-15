@@ -26,7 +26,7 @@ const sendAttendanceValidator = (data) => {
 
         students_number: Joi.number()
             .max(35)
-            .min(15)
+            .min(0)
             .required()
             .messages({
                 'number.min': 'Students number must be exactly 15.',

@@ -6,9 +6,11 @@ const Governorate = require("../models/governoratesModel");
 
 async function addStudent_post(req, res) {
     const studentData = req.body;
+    console.log("studentData", studentData);
 
     // Validate student data
     const result = addStudentValidator(studentData);
+    console.log("studentData", result);
 
     if (!result.valid) {
         return res.status(401).json({ message: result.msg });
@@ -17,7 +19,6 @@ async function addStudent_post(req, res) {
     studentData.to_delete = false;
 
     try {
-
         // Create the student
         const student = await Students.create(studentData);
 
@@ -60,7 +61,6 @@ async function toDeleteStudent_get(req, res) {
     if (studentId == "" || !studentId) {
         return res.status(404).json({ message: 'studentId did not send' });
     }
-
     try {
         const student = await Students.findById(studentId);
         if (student) {

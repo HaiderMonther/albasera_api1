@@ -303,7 +303,6 @@ const setStudentsData = async () => {
             let StudentsNumberPerTeacher = getRandomNumberInRange(20, 30);
 
             for (let i = 0; i < StudentsNumberPerTeacher; i++) {
-                // Generate a student record for the teacher
                 const student = {
                     name: casual.full_name,
                     age: casual.integer(5, 15), // Assuming age range for students

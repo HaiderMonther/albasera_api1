@@ -484,6 +484,8 @@ paths:
               phone_number: "34094390394"
               degree: some degree
               gender: ذكر
+              academic_level: "أولى"
+              stage: "اول ابتدائي"
               size: larg
               teacher_id: 674da25d2b64e4f547d9ce58
       responses:

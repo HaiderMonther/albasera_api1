@@ -2,7 +2,7 @@ const Teachers = require("../models/teachersModel");
 const Governorate = require("../models/governoratesModel");
 const Region = require("../models/regionsModel");
 
-const { registerTeacherValidator } = require("../utils/validations/teacherValidators")
+const { registerTeacherValidator } = require("../utils/validations/teacherValidators");
 const fs = require("fs");
 const path = require("path");
 const myEmitter = require('../utils/eventEmitter');
@@ -28,8 +28,15 @@ async function registerTeacherPost(req, res) {
             image_3
         } = req.body;
 
+        const teacher = await Teachers.findById(teacher_id);
+        if (!teacher) {
+            return res.status(404).json({ message: "Teacher not found" });
+        }
 
-        // validate login data
+
+        if (teacher.state === 3) {
+            return res.status(400).json({ message: "Cannot submit data for a rejected teacher. Please reset the state first." });
+        }
         const result = registerTeacherValidator({
             teacher_id,
             region_id,
@@ -42,18 +49,23 @@ async function registerTeacherPost(req, res) {
             mosque_name,
             degree,
             previous_teacher
-        })
+        });
 
-        if (result.valid == false) {
-            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_1))
-            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_2))
-            fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_3))
-            return res.status(401).json({ message: result.msg })
-
+        if (result.valid === false) {
+            ["image_1", "image_2", "image_3"].forEach(img => {
+                if (req.body[img]) {
+                    fs.unlinkSync(path.join(__dirname, "../../public/", req.body[img]));
+                }
+            });
+            return res.status(401).json({ message: result.msg });
         }
 
+        if (teacher.state !== 0) {
+            return res.status(400).json({ message: "لا يمكنك ارسال البيانات حاليا" });
+        }
 
-        const teacher = await Teachers.findByIdAndUpdate(
+        // Update teacher data
+        const updatedTeacher = await Teachers.findByIdAndUpdate(
             teacher_id,
             {
                 region_id,
@@ -70,35 +82,41 @@ async function registerTeacherPost(req, res) {
                 image_2,
                 image_3,
                 previous_teacher
-            })
+            },
+            { new: true }
+        );
 
-        myEmitter.emit("incrementTeachersForGovernorate", governorate_id)
+        myEmitter.emit("incrementTeachersForGovernorate", governorate_id);
 
-        return res.status(200).json(teacher)
+        return res.status(200).json(updatedTeacher);
     } catch (error) {
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_1))
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_2))
-        fs.unlinkSync(path.join(__dirname, "../../public/", req.body.image_3))
-        console.log(error.message);
-        return res.status(500).json({ message: error.message })
+        ["image_1", "image_2", "image_3"].forEach(img => {
+            if (req.body[img]) {
+                fs.unlinkSync(path.join(__dirname, "../../public/", req.body[img]));
+            }
+        });
+        console.error(error.message);
+        return res.status(500).json({ message: error.message });
     }
 }
-
 
 async function getTeacherByGovernorate_get(req, res) {
     const { governorate_id } = req.params;
     if (!governorate_id) {
-        return res.status(404).json({ message: 'governorate id is required' });
+        return res.status(404).json({ message: 'Governorate ID is required' });
     }
     try {
-        // Find teachers based on governorate_id
         const teachers = await Teachers.find({ governorate_id });
 
         if (!teachers || teachers.length === 0) {
             return res.status(404).json({ message: 'No teachers found for this governorate' });
         }
 
-        // Respond with the list of teachers
+        // Prevent fetching if any teacher has state = 1
+        if (teachers.some(teacher => teacher.state === 1)) {
+            return res.status(400).json({ message: "Cannot fetch teachers in pending state (state = 1)." });
+        }
+
         res.status(200).json(teachers);
     } catch (error) {
         console.error('Error fetching teachers:', error);
@@ -106,31 +124,29 @@ async function getTeacherByGovernorate_get(req, res) {
     }
 }
 
-
-
-
 async function getTeachersByRegion_get(req, res) {
     const { region_id } = req.params;
     if (!region_id) {
-        return res.status(404).json({ message: 'region id is required' });
+        return res.status(404).json({ message: 'Region ID is required' });
     }
     try {
-        // Find teachers based on region_id
         const teachers = await Teachers.find({ region_id });
 
         if (!teachers || teachers.length === 0) {
             return res.status(404).json({ message: 'No teachers found for this region' });
         }
 
-        // Respond with the list of teachers
+        // Prevent fetching if any teacher has state = 1
+        if (teachers.some(teacher => teacher.state === 1)) {
+            return res.status(400).json({ message: "Cannot fetch teachers in pending state (state = 1)." });
+        }
+
         res.status(200).json(teachers);
     } catch (error) {
         console.error('Error fetching teachers:', error);
         res.status(500).json({ message: 'Server error while fetching teachers' });
     }
-};
-
-
+}
 
 async function getTeachersReportByGovernorate_get(req, res) {
     const { governorate_id } = req.params;
@@ -260,7 +276,6 @@ async function getTeachersReportByGovernorate_get(req, res) {
         res.status(500).json({ message: 'Server error while fetching teachers' });
     }
 }
-
 
 async function getTeachersReportByRegion_get(req, res) {
     const { governorate_id } = req.params;
@@ -431,7 +446,7 @@ const approveTeacher = async (req, res) => {
         }
 
         if (teacher.state !== 1) {
-            return res.status(400).json({ message: "Teacher is not in pending status" });
+            return res.status(400).json({ message: "لا يمكنك ارسال البيانات حاليا" });
         }
 
         teacher.state = 2;
@@ -446,21 +461,42 @@ const rejectTeacher = async (req, res) => {
     try {
         const teacherId = req.params.id;
         const { reason } = req.body;
+
         const teacher = await Teachers.findById(teacherId);
         if (!teacher) {
             return res.status(404).json({ message: "Teacher not found" });
         }
-        console.log(teacher);
+
         if (teacher.state !== 1) {
-            return res.status(400).json({ message: "Teacher is not in pending status" });
+            return res.status(400).json({ message: "لا يمكنك ارسال البيانات حاليا" });
         }
+
         teacher.state = 3;
         teacher.rejectionReason = reason || "No reason provided";
+        teacher.image_1 = null;
+        teacher.image_2 = null;
+        teacher.image_3 = null;
+        teacher.mosque_name = null;
+        teacher.degree = null;
+        teacher.work = null;
+        teacher.region_id = null;
+        teacher.governorate_id = null;
+        teacher.gender = null;
+        teacher.phone_number = null;
+        teacher.birth_date = null;
+
         await teacher.save();
 
-        res.status(200).json({ message: "Teacher rejected successfully", teacher });
+        res.status(200).json({
+            message: "Teacher rejected and all data reset successfully",
+            teacher
+        });
     } catch (error) {
-        res.status(500).json({ message: "Error rejecting teacher", error });
+        console.error("Error rejecting teacher:", error);
+        res.status(500).json({
+            message: "An error occurred while rejecting the teacher",
+            error: error.message
+        });
     }
 };
 
@@ -474,7 +510,7 @@ const checkStateForTeacher = async (req, res) => {
         }
 
         if (teacher.state == 0) {
-            return res.status(422).json({ message: "Teacher is not in a pending status" });
+            return res.status(422).json({ message: "لا يمكنك ارسال البيانات حاليا" });
         }
 
         res.status(200).json({ state: teacher.state });
@@ -499,7 +535,6 @@ const resetTeacherState = async (req, res) => {
         }
 
         teacher.state = 0;
-
         teacher.image_1 = null;
         teacher.image_2 = null;
         teacher.image_3 = null;
@@ -519,6 +554,7 @@ const resetTeacherState = async (req, res) => {
         res.status(500).json({ message: "An internal server error occurred", error: error.message });
     }
 };
+
 
 
 
